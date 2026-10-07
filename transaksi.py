@@ -8,7 +8,7 @@ class Transaksi:
         self.__peminjam = peminjam
         self.__tanggal_pinjam = tanggal_pinjam
         self.__batas_kembali = batas_kembali
-        self.__status = "Aktif"
+        self.__status = "Dipinjam"
         self.__daftar_detail = []
 
     def tambah_item(self, alat: Alat) -> None:
@@ -22,28 +22,25 @@ class Transaksi:
                     return False
                 
                 detail.proses_kembali(tanggal, kondisi)
-                detail.update_status_transaksi()
+                self.update_status_transaksi()
                 return True
         return False
 
     def update_status_transaksi(self) -> None:
-        if len(self.__daftar_detail) == 0:
-            self.__status = "Aktif"
-            return
-        
-        semua_kembali = True
+        jumlah_kembali = 0
         for detail in self.__daftar_detail:
-            if not detail.is_sudah_kembali():
-                semua_kembali = False
-                break
+            if detail.is_sudah_kembali():
+                jumlah_kembali += 1
 
-        if semua_kembali:
+        if len(self.__daftar_detail) > 0 and jumlah_kembali == len(self.__daftar_detail):
             self.__status = "Selesai"
+        elif jumlah_kembali > 0:
+            self.__status = "Sebagian dikembalikan"
         else:
-            self.__status = "Aktif"
+            self.__status = "Dipinjam"
 
     def is_aktif(self) -> bool:
-        return self.__status == "Aktif"
+        return self.__status != "Selesai"
 
     def get_peminjam(self) -> Mahasiswa:
         return self.__peminjam
